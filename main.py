@@ -2,26 +2,20 @@ from core.parser.tokenizer import Tokenizer
 from core.parser.parser import Parser
 from core.parser.modal_resolver import ModalResolver
 from core.simulator.simulator import Simulator
+from core.debugger.debugger import Debugger
 
 lines = [
     "G21",
     "G90",
     "G00 X0 Y0 Z5",
-    "G01 Z-2 F100",
-    "X20 Y0",
-    "X20 Y20",
-    "X0 Y20",
-    "X0 Y0",
-    "G00 Z5",
+    "G01 Z-10 F100",   
+    "G00 X50 Y50",    
+    "G01 X200 Y200",   
     "M30"
 ]
 
 tokenizer = Tokenizer()
-token_lines = []
-
-for line in lines:
-    tokens = tokenizer.tokenize(line)
-    token_lines.append((tokens, line))
+token_lines = [(tokenizer.tokenize(line), line) for line in lines]
 
 parser = Parser()
 commands = parser.parse(token_lines)
@@ -32,6 +26,17 @@ commands = resolver.resolve(commands)
 simulator = Simulator()
 toolpath = simulator.run(commands)
 
-print("\n--- TOOLPATH OUTPUT ---\n")
-for segment in toolpath:
-    print(segment)
+debugger = Debugger()
+issues = debugger.run(toolpath)
+
+print("\n--- commands ---\n")
+for cmd in commands:
+    print(cmd)
+
+print("\n--- TOOLPATH ---\n")
+for seg in toolpath:
+    print(seg)
+
+print("\n--- ISSUES ---\n")
+for issue in issues:
+    print(issue)
