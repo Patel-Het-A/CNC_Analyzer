@@ -17,7 +17,8 @@ class MotionEngine:
             start=start,
             end=end,
             move_type=cmd.g_code,
-            feed=cmd.f or self.state.feed_rate
+            feed=cmd.f or self.state.feed_rate,
+            line_number=cmd.line_number
         )
 
         return segment

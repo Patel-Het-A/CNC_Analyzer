@@ -9,13 +9,13 @@ class ToolpathPoint:
 
 
 class ToolpathSegment:
-    def __init__(self, start: ToolpathPoint, end: ToolpathPoint, move_type: str, feed=None):
+    def __init__(self, start: ToolpathPoint, end: ToolpathPoint, move_type: str, feed=None , line_number=None):
         self.start = start
         self.end = end
         self.move_type = move_type  # G00 or G01
         self.feed = feed
+        self.line_number=line_number
 
-        # For debugger later
         self.is_cutting = end.z < 0
 
     def __repr__(self):
