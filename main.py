@@ -4,6 +4,10 @@ from core.parser.modal_resolver import ModalResolver
 from core.simulator.simulator import Simulator
 from core.debugger.debugger import Debugger
 from core.optimizer.optimizer import Optimizer
+from core.visualizer.visualizer import Visualizer
+import copy
+
+
 
 lines = [
     "G21",              # mm
@@ -22,6 +26,8 @@ lines = [
     "G01 X0 Y0",
 
     # Sharp corner (for smoothing)
+    "G01 X5 Y0",
+    "G01 X5 Y5",
     "G01 X5 Y0",
     "G01 X5 Y5",
 
@@ -50,6 +56,7 @@ lines = [
     "M30"
 ]
 
+
 tokenizer = Tokenizer()
 token_lines = [(tokenizer.tokenize(line), line) for line in lines]
 
@@ -58,6 +65,9 @@ commands = parser.parse(token_lines)
 
 resolver = ModalResolver()
 commands = resolver.resolve(commands)
+scale=commands[0].g_code
+if not scale in ["G21","G20"]:
+    scale="G21"
 
 print("\n--- commands ---\n")
 for cmd in commands:
@@ -70,8 +80,12 @@ print("\n--- TOOLPATH ---\n")
 for seg in toolpath:
     print(seg)
 
+
+s=copy.deepcopy(toolpath)
+
 debugger = Debugger()
 issues = debugger.run(toolpath)
+
 
 print("\n--- ISSUES ---\n")
 for issue in issues:
@@ -87,3 +101,9 @@ for seg in optimized_toolpath:
 print("\n---FEED---\n")
 for seg in optimized_toolpath:
     print(f"{seg} | Feed={seg.feed}")
+
+viz = Visualizer()
+
+distance_original=viz.total_distance(s)
+distance_optimized=viz.total_distance(optimized_toolpath)
+viz.show_3d(s,distance_original,optimized_toolpath,distance_optimized,scale)
