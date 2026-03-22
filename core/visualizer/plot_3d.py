@@ -7,13 +7,13 @@ class Plot3D:
     # -------- ORIGINAL --------
         fig1 = plt.figure("Original Toolpath")
         fig1.text(
-    0.5, 0.02,
+    0.30, 0.07,
     f"Distance: {original_distance:.2f} {'mm' if scale == 'G21' else 'inch'}",
     ha='center',
-    fontsize=10
+    fontsize=13
 )
-        ax1 = fig1.add_subplot(111, projection='3d')
-
+        ax1 = fig1.add_subplot(121, projection='3d')
+        ax1.set_title("Original Toolpath",fontsize=20,fontweight='bold')
         for seg in original:
             x = [seg.start.x, seg.end.x]
             y = [seg.start.y, seg.end.y]
@@ -24,22 +24,22 @@ class Plot3D:
             else:
                 ax1.plot(x, y, z, 'b-')
 
-        ax1.set_title("Original Toolpath")
         ax1.set_xlabel("X")
         ax1.set_ylabel("Y")
         ax1.set_zlabel("Z")
 
 
         # -------- OPTIMIZED --------
-        fig2 = plt.figure("Optimized Toolpath")
-
-        fig2.text(
-    0.5, 0.02,
+        
+        fig1.text(
+    0.75, 0.07,
     f"Distance: {optimized_distance:.2f} {'mm' if scale == 'G21' else 'inch'}",
     ha='center',
-    fontsize=10
-)
-        ax2 = fig2.add_subplot(111, projection='3d')
+    fontsize=13
+        )
+
+        ax2 = fig1.add_subplot(122, projection='3d')
+        ax2.set_title("Optimized Toolpath",fontsize=20,fontweight='bold')
 
         for seg in optimized_toolpath:
             x = [seg.start.x, seg.end.x]
@@ -51,7 +51,6 @@ class Plot3D:
             else:
                 ax2.plot(x, y, z, 'g-')  # green for optimized cut
 
-        ax2.set_title("Optimized Toolpath")
         ax2.set_xlabel("X")
         ax2.set_ylabel("Y")
         ax2.set_zlabel("Z")
