@@ -11,8 +11,8 @@ class ModalResolver:
             if cmd.g_code: # when G_code!=None 
                 self.last_g_code = cmd.g_code
             else:
-                
-                cmd.g_code = self.last_g_code
+                if cmd.m_code is None:
+                    cmd.g_code = self.last_g_code
 
             resolved_commands.append(cmd)
 
