@@ -46,32 +46,71 @@ class PathOptimizer:
             prev = result[-1]
             curr = toolpath[i]
 
-            if self.is_collinear(prev, curr) and prev.move_type == curr.move_type:
+            if (self.are_collinear(prev.start,prev.end, curr.end) or prev.move_type=="G00")and( prev.move_type == curr.move_type):
                 prev.end = curr.end
             else:
                 result.append(curr)
 
         return result
+    
+    def are_collinear(self,a,b,c,eps=1e-9):
+        ab=(a.x-b.x,a.y-b.y,a.z-b.z)
+        bc=(b.x-c.x,b.y-c.y,b.z-c.z)
 
-    def is_collinear(self, s1, s2):
-        dx1 = s1.end.x - s1.start.x
-        dy1 = s1.end.y - s1.start.y
-        dx2 = s2.end.x - s2.start.x
-        dy2 = s2.end.y - s2.start.y
-        return dx1 * dy2 == dy1 * dx2
+        cross=(
+            ab[1]*bc[2]-ab[2]*bc[1],
+            ab[2]*bc[0]-ab[0]*bc[2],
+            ab[0]*bc[1]-ab[1]*bc[0]
+        )
+
+        return all(abs(p)<eps for p in cross)
 
     def remove_air_cuts(self, toolpath):
         optimized = []
 
         for seg in toolpath:
-            if seg.move_type == "G00" and seg.end.z < 0:
-                seg.move_type = "G01"
+            if seg.move_type == "G00":
+                if seg.start.z > SAFE_Z > seg.end.z:
+                    seg1=copy.deepcopy(seg)
+                    seg1.end.z=SAFE_Z
+                    optimized.append(seg1)
+                    seg.start.z=SAFE_Z
+                    seg.move_type="G01"
+                    optimized.append(seg)
+                elif seg.start.z < SAFE_Z < seg.end.z:
+                    seg1=copy.deepcopy(seg)
+                    seg1.move_type="G01"
+                    seg1.end.z=SAFE_Z
+                    optimized.append(seg1)
+                    seg.start.z=SAFE_Z
+                    optimized.append(seg)
+                elif seg.start.z < SAFE_Z > seg.end.z:
+                    seg.move_type="G01"
+                    optimized.append(seg)
+                else:
+                    optimized.append(seg)
+                
 
             elif seg.move_type == "G01":
-                if seg.start.z > SAFE_Z and seg.end.z > SAFE_Z:
-                    seg.move_type = "G00"
-
-            optimized.append(seg)
+                if seg.start.z > SAFE_Z > seg.end.z:
+                    seg1=copy.deepcopy(seg)
+                    seg1.end.z=SAFE_Z
+                    seg1.move_type="G00"
+                    optimized.append(seg1)
+                    seg.start.z=SAFE_Z
+                    optimized.append(seg)
+                elif seg.start.z < SAFE_Z < seg.end.z:
+                    seg1=copy.deepcopy(seg)
+                    seg1.end.z=SAFE_Z
+                    optimized.append(seg1)
+                    seg.move_type="G00"
+                    seg.start.z=SAFE_Z
+                    optimized.append(seg)
+                elif seg.start.z > SAFE_Z < seg.end.z:
+                    seg.move_type="G00"
+                    optimized.append(seg)
+                else:
+                    optimized.append(seg)
 
         return optimized
 

@@ -4,7 +4,6 @@ from core.optimizer.path_optimizer import PathOptimizer
 
 class Optimizer:
     def __init__(self):
-        self.cleaner = CodeCleaner()
         self.path_optimizer = PathOptimizer()
 
     def run(self, toolpath):
