@@ -72,11 +72,14 @@ print(f"Original Distance: {result['metrics']['original_distance']:.2f}")
 print(f"Optimized Distance: {result['metrics']['optimized_distance']:.2f}")
 
 if result["ai"]:
-    print("\n--- AI EXPLANATION ---\n")
+    print("\n---AI EXPLANATION---\n")
     print(result["ai"]["explanation"])
 
-    print("\n--- AI SUGGESTIONS ---\n")
-    print(result["ai"]["suggestion"])
+    print("\n--- AI SUGGESTIONS BASED ON ISSUES ---\n")
+    if result["issues"]==[]:
+        print("No critical issues are found\n")
+    else:
+        print(result["ai"]["suggestion"])
 
 # VISUALIZATION
 viz = pipeline.visualizer
