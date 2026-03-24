@@ -8,6 +8,7 @@ from core.visualizer.visualizer import Visualizer
 from core.ai.ai_engine import AIEngine
 
 from pipeline.config import Config
+from utils.metrics import Metrics
 
 import copy
 
@@ -23,36 +24,32 @@ class CNCPipeline:
         self.debugger = Debugger()
         self.optimizer = Optimizer()
         self.visualizer = Visualizer()
+        self.metrics = Metrics()
 
         self.ai = AIEngine(api_key) if api_key and self.config.ENABLE_AI else None
 
     def run(self, gcode_lines):
-        # -------- TOKENIZE --------
+        
         token_lines = [(self.tokenizer.tokenize(line), line) for line in gcode_lines]
 
-        # -------- PARSE --------
         commands = self.parser.parse(token_lines)
         commands = self.resolver.resolve(commands)
 
-        # -------- SIMULATE --------
         toolpath = self.simulator.run(commands)
         original_toolpath = copy.deepcopy(toolpath)
 
-        # -------- DEBUG --------
         issues = []
         if self.config.ENABLE_DEBUGGING:
             issues = self.debugger.run(toolpath)
 
-        # -------- OPTIMIZE --------
         optimized_toolpath = toolpath
         if self.config.ENABLE_OPTIMIZATION:
             optimized_toolpath = self.optimizer.run(toolpath)
 
-        # -------- METRICS --------
-        original_distance = self.visualizer.total_distance(original_toolpath)
-        optimized_distance = self.visualizer.total_distance(optimized_toolpath)
-
-        # -------- AI --------
+        original_metrics = self.metrics.calculate(original_toolpath)
+        optimized_metrics = self.metrics.calculate(optimized_toolpath)
+        improvement=((original_metrics["total"]-optimized_metrics["total"])/original_metrics["total"])*100
+        improvement=round(improvement,2)
         ai_result = None
         if self.ai:
             ai_result = self.ai.run(gcode_lines, issues)
@@ -63,8 +60,9 @@ class CNCPipeline:
             "optimized_toolpath": optimized_toolpath,
             "issues": issues,
             "metrics": {
-                "original_distance": original_distance,
-                "optimized_distance": optimized_distance
+                "original": original_metrics,
+                "optimized": optimized_metrics,
+                "improvemnt":improvement
             },
             "ai": ai_result
         }

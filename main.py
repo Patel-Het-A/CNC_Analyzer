@@ -1,5 +1,5 @@
 from pipeline.pipeline import CNCPipeline
-#from utils.helpers import load_gcode_file  # optional
+from utils.helpers import load_gcode_file
 import os
 from dotenv import load_dotenv
 
@@ -62,17 +62,23 @@ api_key = os.getenv("GROQ_API_KEY")
 pipeline = CNCPipeline(api_key=api_key)
 result = pipeline.run(gcode)
 
-# OUTPUT
 print("\n--- ISSUES ---\n")
 for issue in result["issues"]:
     print(issue)
 
 print("\n--- METRICS ---\n")
-print(f"Original Distance: {result['metrics']['original_distance']:.2f}")
-print(f"Optimized Distance: {result['metrics']['optimized_distance']:.2f}")
+
+print("Original:")
+print(result["metrics"]["original"])
+
+print("\nOptimized:")
+print(result["metrics"]["optimized"])
+
+print(f"\nImprovement:{result["metrics"]["improvemnt"]}%")
+
 
 if result["ai"]:
-    print("\n---AI EXPLANATION---\n")
+    print("\n--- AI EXPLANATION ---\n")
     print(result["ai"]["explanation"])
 
     print("\n--- AI SUGGESTIONS BASED ON ISSUES ---\n")
@@ -81,13 +87,12 @@ if result["ai"]:
     else:
         print(result["ai"]["suggestion"])
 
-# VISUALIZATION
 viz = pipeline.visualizer
 
 viz.show_3d(
     result["toolpath"],
-    result["metrics"]["original_distance"],
+    result["metrics"]["original"]["total"],
     result["optimized_toolpath"],
-    result["metrics"]["optimized_distance"],
+    result["metrics"]["optimized"]["total"],
     "G21"
 )
