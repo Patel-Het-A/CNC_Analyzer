@@ -2,6 +2,7 @@ class Config:
     SAFE_Z = 5.0
     MAX_DEPTH = 5.0
     LARGE_JUMP_THRESHOLD = 100
+    COLLISION_DEPTH=70
 
     ENABLE_AI = True
     ENABLE_OPTIMIZATION = True
