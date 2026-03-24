@@ -6,13 +6,16 @@ from core.debugger.debugger import Debugger
 from core.optimizer.optimizer import Optimizer
 from core.visualizer.visualizer import Visualizer
 import copy
-
+from core.ai.ai_engine import AIEngine
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 
 lines = [
-    "G21",
+   "G21",
 "G90",
-"G00 Z10",
+"G00 Z5",
 
 "G00 X0 Y20",
 "G01 Z-2 F300",
@@ -20,7 +23,7 @@ lines = [
 "G01 X10 Y0",
 "G01 X5 Y0",
 "G01 X5 Y5",
-"G00 Z10",
+"G00 Z5",
 
 "G00 X15 Y20",
 "G01 Z-2",
@@ -28,12 +31,12 @@ lines = [
 "G01 X15 Y20",
 "G01 X15 Y0",
 "G01 X25 Y0",
-"G00 Z10",
+"G00 Z5",
 
 "G00 X15 Y10",
 "G01 Z-2",
 "G01 X22 Y10",
-"G00 Z10",
+"G00 Z5",
 
 "G00 X30 Y20",
 "G01 Z-2",
@@ -41,22 +44,22 @@ lines = [
 "G01 X30 Y20",
 "G01 X30 Y0",
 "G01 X40 Y0",
-"G00 Z10",
+"G00 Z5",
 
 "G00 X30 Y10",
 "G01 Z-2",
 "G01 X37 Y10",
-"G00 Z10",
+"G00 Z5",
 
 "G00 X45 Y20",
 "G01 Z-2",
 "G01 X60 Y20",
-"G00 Z10",
+"G00 Z5",
 
 "G00 X52.5 Y20",
 "G01 Z-2",
 "G01 X52.5 Y0",
-"G00 Z10",
+"G00 Z5",
 
 "M30"
 ]
@@ -112,3 +115,21 @@ viz = Visualizer()
 distance_original=viz.total_distance(s)
 distance_optimized=viz.total_distance(optimized_toolpath)
 viz.show_3d(s,distance_original,optimized_toolpath,distance_optimized,scale)
+
+
+api_key = os.getenv("GROQ_API_KEY")
+ai =AIEngine(api_key=api_key)
+
+result = ai.run(lines, issues)
+
+print("="*60)
+print(" "*20 + "EXPLANATION OF G-CODE")
+print("="*60)
+
+print(result["explanation"])
+print("="*60)
+print(" "*22 + "ISSUES & SUGGESTIONS")
+print("="*60)
+print(result["suggestion"])
+
+print("----------TERMINATED----------------------")
