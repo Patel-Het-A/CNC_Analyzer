@@ -54,6 +54,8 @@ class PathOptimizer:
         return result
     
     def are_collinear(self,a,b,c,eps=1e-9):
+        if(c.z<SAFE_Z):
+            return False
         ab=(a.x-b.x,a.y-b.y,a.z-b.z)
         bc=(b.x-c.x,b.y-c.y,b.z-c.z)
 
@@ -84,7 +86,7 @@ class PathOptimizer:
                     optimized.append(seg1)
                     seg.start.z=SAFE_Z
                     optimized.append(seg)
-                elif seg.start.z < SAFE_Z > seg.end.z:
+                elif seg.start.z <= SAFE_Z >= seg.end.z:
                     seg.move_type="G01"
                     optimized.append(seg)
                 else:
@@ -106,7 +108,7 @@ class PathOptimizer:
                     seg.move_type="G00"
                     seg.start.z=SAFE_Z
                     optimized.append(seg)
-                elif seg.start.z > SAFE_Z < seg.end.z:
+                elif seg.start.z >= SAFE_Z <= seg.end.z:
                     seg.move_type="G00"
                     optimized.append(seg)
                 else:

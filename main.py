@@ -10,50 +10,55 @@ import copy
 
 
 lines = [
-    "G21",              # mm
-    "G90",              # absolute mode
+    "G21",
+"G90",
+"G00 Z10",
 
-    # Safe start
-    "G00 X0 Y0 Z10",
+"G00 X0 Y20",
+"G01 Z-2 F300",
+"G01 X10 Y20",
+"G01 X10 Y0",
+"G01 X5 Y0",
+"G01 X5 Y5",
+"G00 Z10",
 
-    # Cutting start
-    "G01 Z-2 F300",
+"G00 X15 Y20",
+"G01 Z-2",
+"G01 X25 Y20",
+"G01 X15 Y20",
+"G01 X15 Y0",
+"G01 X25 Y0",
+"G00 Z10",
 
-    # Normal cutting
-    "G01 X20 Y0",
-    "G01 X20 Y20",
-    "G01 X0 Y20",
-    "G01 X0 Y0",
+"G00 X15 Y10",
+"G01 Z-2",
+"G01 X22 Y10",
+"G00 Z10",
 
-    # Sharp corner (for smoothing)
-    "G01 X5 Y0",
-    "G01 X5 Y5",
-    "G01 X5 Y0",
-    "G01 X5 Y5",
+"G00 X30 Y20",
+"G01 Z-2",
+"G01 X40 Y20",
+"G01 X30 Y20",
+"G01 X30 Y0",
+"G01 X40 Y0",
+"G00 Z10",
 
-    # Excessive depth (debug)
-    "G01 Z-10",
+"G00 X30 Y10",
+"G01 Z-2",
+"G01 X37 Y10",
+"G00 Z10",
 
-    # Rapid inside material (should be fixed)
-    "G00 X50 Y50",
+"G00 X45 Y20",
+"G01 Z-2",
+"G01 X60 Y20",
+"G00 Z10",
 
-    # Safe move
-    "G00 Z15",
+"G00 X52.5 Y20",
+"G01 Z-2",
+"G01 X52.5 Y0",
+"G00 Z10",
 
-    # Large jump (anomaly)
-    "G00 X200 Y200",
-
-    # Redundant move
-    "G00 X200 Y200",
-
-    # Air cutting (should convert to rapid)
-    "G01 X210 Y210",
-
-    # Another cut
-    "G01 Z-3",
-    "G01 X250 Y250",
-
-    "M30"
+"M30"
 ]
 
 
