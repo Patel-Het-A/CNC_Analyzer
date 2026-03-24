@@ -1,21 +1,14 @@
-from core.parser.tokenizer import Tokenizer
-from core.parser.parser import Parser
-from core.parser.modal_resolver import ModalResolver
-from core.simulator.simulator import Simulator
-from core.debugger.debugger import Debugger
-from core.optimizer.optimizer import Optimizer
-from core.visualizer.visualizer import Visualizer
-import copy
-from core.ai.ai_engine import AIEngine
+from pipeline.pipeline import CNCPipeline
+#from utils.helpers import load_gcode_file  # optional
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
-
-lines = [
-   "G21",
+gcode = [
+    "G21",
 "G90",
-"G00 Z5",
+"G00 Z10",
 
 "G00 X0 Y20",
 "G01 Z-2 F300",
@@ -23,7 +16,7 @@ lines = [
 "G01 X10 Y0",
 "G01 X5 Y0",
 "G01 X5 Y5",
-"G00 Z5",
+"G00 Z10",
 
 "G00 X15 Y20",
 "G01 Z-2",
@@ -31,12 +24,12 @@ lines = [
 "G01 X15 Y20",
 "G01 X15 Y0",
 "G01 X25 Y0",
-"G00 Z5",
+"G00 Z10",
 
 "G00 X15 Y10",
 "G01 Z-2",
 "G01 X22 Y10",
-"G00 Z5",
+"G00 Z10",
 
 "G00 X30 Y20",
 "G01 Z-2",
@@ -44,92 +37,54 @@ lines = [
 "G01 X30 Y20",
 "G01 X30 Y0",
 "G01 X40 Y0",
-"G00 Z5",
+"G00 Z10",
 
 "G00 X30 Y10",
 "G01 Z-2",
 "G01 X37 Y10",
-"G00 Z5",
+"G00 Z10",
 
 "G00 X45 Y20",
 "G01 Z-2",
 "G01 X60 Y20",
-"G00 Z5",
+"G00 Z10",
 
 "G00 X52.5 Y20",
 "G01 Z-2",
 "G01 X52.5 Y0",
-"G00 Z5",
+"G00 Z10",
 
 "M30"
 ]
 
+api_key = os.getenv("GROQ_API_KEY")
 
-tokenizer = Tokenizer()
-token_lines = [(tokenizer.tokenize(line), line) for line in lines]
+pipeline = CNCPipeline(api_key=api_key)
+result = pipeline.run(gcode)
 
-parser = Parser()
-commands = parser.parse(token_lines)
-
-resolver = ModalResolver()
-commands = resolver.resolve(commands)
-scale=commands[0].g_code
-if not scale in ["G21","G20"]:
-    scale="G21"
-
-print("\n--- commands ---\n")
-for cmd in commands:
-    print(cmd)
-
-simulator = Simulator()
-toolpath = simulator.run(commands)
-
-print("\n--- TOOLPATH ---\n")
-for seg in toolpath:
-    print(seg)
-
-
-s=copy.deepcopy(toolpath)
-
-debugger = Debugger()
-issues = debugger.run(toolpath)
-
-
+# OUTPUT
 print("\n--- ISSUES ---\n")
-for issue in issues:
+for issue in result["issues"]:
     print(issue)
 
-optimizer=Optimizer()
-optimized_toolpath=optimizer.run(toolpath)
+print("\n--- METRICS ---\n")
+print(f"Original Distance: {result['metrics']['original_distance']:.2f}")
+print(f"Optimized Distance: {result['metrics']['optimized_distance']:.2f}")
 
-print("\n---OPTIMIZED TOOLPATH---\n")
-for seg in optimized_toolpath:
-    print(seg)
+if result["ai"]:
+    print("\n--- AI EXPLANATION ---\n")
+    print(result["ai"]["explanation"])
 
-print("\n---FEED---\n")
-for seg in optimized_toolpath:
-    print(f"{seg} | Feed={seg.feed}")
+    print("\n--- AI SUGGESTIONS ---\n")
+    print(result["ai"]["suggestion"])
 
-viz = Visualizer()
+# VISUALIZATION
+viz = pipeline.visualizer
 
-distance_original=viz.total_distance(s)
-distance_optimized=viz.total_distance(optimized_toolpath)
-viz.show_3d(s,distance_original,optimized_toolpath,distance_optimized,scale)
-
-
-api_key = os.getenv("GROQ_API_KEY")
-ai =AIEngine(api_key=api_key)
-
-result = ai.run(lines, issues)
-
-print("="*60)
-print(" "*20 + "EXPLANATION OF G-CODE")
-print("="*60)
-
-print(result["explanation"])
-print("="*60)
-print(" "*22 + "ISSUES & SUGGESTIONS")
-print("="*60)
-print(result["suggestion"])
-
-print("----------TERMINATED----------------------")
+viz.show_3d(
+    result["toolpath"],
+    result["metrics"]["original_distance"],
+    result["optimized_toolpath"],
+    result["metrics"]["optimized_distance"],
+    "G21"
+)

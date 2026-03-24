@@ -1,0 +1,8 @@
+class Config:
+    SAFE_Z = 5.0
+    MAX_DEPTH = 5.0
+    LARGE_JUMP_THRESHOLD = 100
+
+    ENABLE_AI = True
+    ENABLE_OPTIMIZATION = True
+    ENABLE_DEBUGGING = True
