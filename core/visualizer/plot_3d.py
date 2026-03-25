@@ -51,7 +51,11 @@ class Plot3D:
             z = [seg.start.z, seg.end.z]
 
             if seg.line_number in issue_lines:
-                ax1.plot(x, y, z, 'r-')
+                
+                if seg.move_type == "G00":
+                    ax1.plot(x, y, z, 'r--')
+                else:
+                    ax1.plot(x, y, z, 'r-')
             else:
                 if seg.move_type == "G00":
                     ax1.plot(x, y, z, 'y--')
@@ -96,7 +100,8 @@ class Plot3D:
             Line2D([0], [0], color='yellow', linestyle='--', label='Rapid (G00)'),
             Line2D([0], [0], color='blue', linestyle='-', label='Cutting (Original)'),
              Line2D([0], [0], color='green', linestyle='-', label='Cutting (Optimized)'),
-             Line2D([0], [0], color='red', linestyle='-', label='Issue')
+             Line2D([0], [0], color='red', linestyle='--', label='Issue (G00-move)'),
+             Line2D([0], [0], color='red', linestyle='-', label='Issue (G01- Move)')
             
         ]
         
