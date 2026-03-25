@@ -10,24 +10,23 @@ class Debugger:
         self.anomaly = AnomalyDetector()
 
     def run(self, toolpath):
-        
+        self.issues = []  # reset on every run
+
         for i in range(len(toolpath)):
             segment = toolpath[i]
-
             prev_segment = toolpath[i - 1] if i > 0 else None
-
             self.apply_rules(segment, segment.line_number, prev_segment)
 
         return self.issues
 
-    def apply_rules(self, segment, line_number,prev_segment):
+    def apply_rules(self, segment, line_number, prev_segment):
         checks = [
             self.safety.rapid_in_material(segment, line_number),
             self.safety.excessive_depth(segment, line_number),
             self.collision.check(segment, line_number),
             self.anomaly.large_jump(segment, line_number),
             self.safety.missing_feed(segment, line_number),
-            self.safety.missing_retract( segment,prev_segment, line_number)
+            self.safety.missing_retract(segment, prev_segment, line_number)
         ]
 
         for issue in checks:
