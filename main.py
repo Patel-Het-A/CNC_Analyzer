@@ -3,6 +3,7 @@ from utils.helpers import load_gcode_file
 import os
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 gcode = [
@@ -89,10 +90,12 @@ if result["ai"]:
 
 viz = pipeline.visualizer
 
+
+
 viz.show_3d(
     result["toolpath"],
     result["metrics"]["original"]["total"],
     result["optimized_toolpath"],
     result["metrics"]["optimized"]["total"],
-    "G21"
+    "G21" , result["issues"]
 )
